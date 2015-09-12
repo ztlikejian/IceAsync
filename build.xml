@@ -1,0 +1,91 @@
+<!--
+ **********************************************************************
+  SmsGate build script using ant 1.7
+ **********************************************************************
+-->
+
+<project name="main" default="all" basedir=".">
+
+    <!-- get access to env variables globally -->
+    <property environment="env" />
+
+    <!-- set global properties for this build -->
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="bin" />
+    <property name="lib.dir" value="lib"/>
+    <property name="cache.dir" value="depcache"/>
+    <property name="app.name" value="IceHelloWorldImpl"/>
+    <property name="version" value="1.0.0" />
+   
+    <!-- Create the time stamp -->
+    <tstamp>  
+    	<!--
+ 			<format property="today" pattern="yyyyMMddhhmm" locale="zh"/>  
+ 			-->
+ 			<format property="today" pattern="yyyyMMdd" locale="zh"/>
+		</tstamp>
+    
+    
+    <property name="app.rele.name" 		value="${app.name}-rele.${version}.${today}.jar"/>
+    
+
+    <!--<target name="compile" depends="init">-->
+    <target name="compile" depends="clean">
+        <mkdir dir="${cache.dir}"/>
+        <mkdir dir="${build.dir}"/>
+
+        <depend srcdir="${src.dir}" destdir="${build.dir}" cache="${cache.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${build.dir}"
+            source="1.6" debug="${debug}" optimize="${optimize}" deprecation="on" includeantruntime="on">
+            <compilerarg line="-encoding UTF-8 "/>
+            <classpath>
+             <!-- include all jar files  -->
+             <fileset dir="${lib.dir}">
+               <include name="**/*.jar"/>
+             </fileset>
+           </classpath>
+        </javac>
+    	<delete dir="${cache.dir}" />
+    </target>
+
+    <target name="rele_jar" depends="compile">
+    	<jar jarfile="${lib.dir}/${app.rele.name}" >
+    	<!--
+    		<jar jarfile="F:/disk/lib/${appname}.${version}.jar" >
+    		-->
+				<fileset dir="${build.dir}" excludes="*.bat,*.sh,*.xml" />
+				<fileset dir="${src.dir}" includes="**/*.xml" excludes="build.xml" />
+			</jar>
+    </target>
+    
+    <target name="beta_jar" depends="compile">
+    	<jar jarfile="${lib.dir}/${app.beta.name}" >
+				<fileset dir="${build.dir}" />
+				<fileset dir="${src.dir}" includes="**/*.xml" excludes="build.xml" />
+				<fileset dir="${src.dir}" includes="**/*.java" />
+			</jar>
+    </target>
+
+    <target name="all" depends="rele_jar">
+    </target>
+
+    <target name="clean">
+        <delete dir="${cache.dir}"/>
+        <delete dir="${build.dir}/com"/>
+        <delete dir="${build.dir}/Configuration.xml"/>
+        <delete>
+         <fileset dir="${lib.dir}">
+           <include name="${app.rele.name}"/>
+         </fileset>
+        </delete>
+    </target>
+    
+    <!--
+    beta.name        	 : ${app.beta.name}
+    -->
+		<echo>
+		  |-------------------------------------------------------------------------------|
+		  release.name       : ${app.rele.name}
+		  |-------------------------------------------------------------------------------|
+		</echo>    
+</project>
